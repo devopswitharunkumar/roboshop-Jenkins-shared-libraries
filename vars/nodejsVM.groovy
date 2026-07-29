@@ -16,7 +16,8 @@ pipeline {
     }
     environment {
         packageVersion = ''
-        nexusURL = 'nexus.devopswitharun.online:8081'   //we gave public ip by creating route53 record of nexus ec2 with port but in project we use static ip 
+        //replaced with pipelineglobals file
+        // nexusURL = 'nexus.devopswitharun.online:8081'   //we gave public ip by creating route53 record of nexus ec2 with port but in project we use static ip 
     }
     options {
         ansiColor('xterm')
@@ -30,8 +31,10 @@ pipeline {
         stage('Get Version') {
             steps {
                 script {
-                    sh 'cd catalogue/'
-                    def packageJSON = readJSON file: 'catalogue/package.json'
+                    sh """
+                    cd ${configMap.component}/
+                    """
+                    def packageJSON = readJSON file: "${configMap.component}/package.json"
                     packageVersion = packageJSON.version
                     echo "Application version is : $packageVersion"
                 }
@@ -43,8 +46,8 @@ pipeline {
                     sudo dnf module disable nodejs -y
                     sudo dnf module enable nodejs:18 -y
                     sudo dnf install nodejs -y
-                    cd catalogue/
-                    npm install  
+                    cd ${configMap.component}/
+                    npm install
                 """
             }
         }
@@ -58,7 +61,7 @@ pipeline {
         stage('Sonar Scan') {
             steps {
                 sh """
-                    cd catalogue/
+                    cd ${configMap.component}/
                     sonar-scanner 
                 """
             }
@@ -67,10 +70,10 @@ pipeline {
             steps {
                 sh """
                     sudo dnf install zip -y
-                    cd catalogue/
+                    cd ${configMap.component}/
                     ls -la       
                     pwd             
-                    zip -q -r catalogue.zip ./* -x ".git" -x ".zip"
+                    zip -q -r ${configMap.component}.zip ./* -x ".git" -x ".zip"
                     ls -ltr 
                 """
             }
@@ -79,20 +82,20 @@ pipeline {
             steps {
                 sh """
                     pwd
-                    cd catalogue/
+                    cd ${configMap.component}/
                 """
                 nexusArtifactUploader(
                     nexusVersion: 'nexus3',
                     protocol: 'http',
-                    nexusUrl: "${nexusURL}",
+                    nexusUrl: pipelineGlobals.nexusURL(),
                     groupId: 'com.roboshop',
                     version: "${packageVersion}",
-                    repository: 'catalogue',
+                    repository: "${configMap.component}"
                     credentialsId: 'nexus-login-credentials',
                     artifacts: [
-                        [artifactId: 'catalogue',
+                        [artifactId: "${configMap.component}",
                         classifier: '',
-                        file: 'catalogue/catalogue' + '.zip',
+                        file: "${configMap.component}/${configMap.component}.zip",
                         type: 'zip']
                     ]
                 )
@@ -110,7 +113,7 @@ pipeline {
                         string(name: 'version', value: "${packageVersion}"),
                         string(name: 'environment', value: "dev")
                     ]
-                    build job: "RoboShop-CD/catalogue-CD-deploy", wait: true, parameters: buildParams 
+                    build job: "RoboShop-Project/${configMap.component}-CD-deploy", wait: true, parameters: buildParams 
                 }
             }
         }
