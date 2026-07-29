@@ -7,6 +7,7 @@
 
 
 //Before share library file 
+def call(Map configMap) {
 pipeline {
     agent {
         node {
@@ -127,4 +128,5 @@ pipeline {
             echo "Pipeline is Failed "
         }
     }
+}
 }
