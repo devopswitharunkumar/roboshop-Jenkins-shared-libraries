@@ -113,7 +113,7 @@ pipeline {
                         string(name: 'version', value: "${packageVersion}"),
                         string(name: 'environment', value: "dev")
                     ]
-                    build job: "RoboShop-Project/${configMap.component}-CD-deploy", wait: true, parameters: buildParams 
+                    build job: "RobosShop-Project-CD/${configMap.component}-CD-deploy", wait: true, parameters: buildParams 
                 }
             }
         }
