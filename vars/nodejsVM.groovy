@@ -90,7 +90,7 @@ pipeline {
                     nexusUrl: pipelineGlobals.nexusURL(),
                     groupId: 'com.roboshop',
                     version: "${packageVersion}",
-                    repository: "${configMap.component}"
+                    repository: "${configMap.component}",
                     credentialsId: 'nexus-login-credentials',
                     artifacts: [
                         [artifactId: "${configMap.component}",
