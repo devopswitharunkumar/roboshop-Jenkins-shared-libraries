@@ -1,7 +1,7 @@
 #!groovy
 
 def decidePipeline(Map configMap){
-    application = config.get("application")
+    def application = configMap.get("application")
     switch (application) {
         case 'nodejsVM' :
             nodejsVM(configMap)
