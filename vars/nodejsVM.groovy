@@ -58,11 +58,20 @@ pipeline {
                 """
             }
         }
+        //actual sonar code but below i have reyurn echo because sonar need extra server so just return statement 
+        // stage('Sonar Scan') {
+        //     steps {
+        //         sh """
+        //             cd ${configMap.component}/
+        //             sonar-scanner 
+        //         """
+        //     }
+        // }
         stage('Sonar Scan') {
             steps {
                 sh """
                     cd ${configMap.component}/
-                    sonar-scanner 
+                    echo "sonar-scanning will run here" 
                 """
             }
         }
