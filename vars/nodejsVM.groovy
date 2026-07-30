@@ -71,6 +71,7 @@ pipeline {
             steps {
                 sh """
                     cd ${configMap.component}/
+                    echo "usually command runs here is sonar-scanner"
                     echo "sonar-scanning will run here" 
                 """
             }
