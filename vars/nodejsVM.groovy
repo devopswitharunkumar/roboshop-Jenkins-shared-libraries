@@ -25,7 +25,9 @@ pipeline {
         disableConcurrentBuilds()
     }
     parameters {
+        choice(name: 'environment', choices: ['dev', 'prod'], description: 'Select the target environment')
         booleanParam(name: 'Deploy', defaultValue: false, description: 'If Deploy Want Do  This ?')
+        choice(name: 'action', choices: ['Apply', 'Destroy'], description: 'Terraform Action')
     }
     stages {
         stage('Get Version') {
@@ -121,7 +123,8 @@ pipeline {
                 script {
                     def buildParams = [
                         string(name: 'version', value: "${packageVersion}"),
-                        string(name: 'environment', value: "dev")
+                        string(name: 'environment', value: "${params.environment}"),
+                        string(name: 'action', value: params.action)
                     ]
                     build job: "RoboShop-Project/${configMap.component}-CD-deploy", wait: true, parameters: buildParams 
                 }
